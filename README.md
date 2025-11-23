@@ -13,12 +13,9 @@ The core ERCRD equation:
 
 ```math
 min┬x(t)∫₀ᵀ[α·‖∇F(x(t))‖² + β·Φ(x(t),t) + γ·Ψ(x(t))]dt
-
-text
 dx(t)/dt = G(x(t), u(t), ξ(t))
 H(x(t)) ≤ R(t)
 x(0) = x₀
-
 # Clone the repository
 git clone https://github.com/fabianomelloguedes/ERCRD-Framework.git
 cd ERCRD-Framework
@@ -28,7 +25,6 @@ pip install -e .
 
 # Run the example
 python examples/energy_demo.py
-
 from ercrd import EnergyERCRD
 import numpy as np
 
@@ -42,11 +38,3 @@ optimizer = EnergyERCRD(
 # Solve optimal dispatch
 result = optimizer.optimize(np.array([50, 60, 40, 0, 0, 0]))
 print(f"Optimal cost: ${result['final_cost']:.2f}")
-
-@article{guedes2024ercrd,
-  title={ERCRD: A Unified Mathematical Framework for Dynamic Resource Optimization},
-  author={Guedes, Fabiano Mello},
-  journal={Preprint},
-  year={2024},
-  url={https://github.com/guedezzs/ERCRD-Framework}
-}
