@@ -1,0 +1,38 @@
+name: Inspect ActiveSoft API docs
+
+on:
+  push:
+    paths:
+      - '.github/workflows/activesoft-docs-fetch.yml'
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch docs page
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://siga04.activesoft.com.br"
+          curl -fsSL -D headers.txt "$BASE/docs/" -o docs.html
+          echo "=== headers ==="
+          cat headers.txt
+          echo "=== docs head ==="
+          sed -n '1,240p' docs.html
+          echo "=== likely spec references ==="
+          grep -Eoi '([A-Za-z0-9_./:-]*(openapi|swagger|schema)[A-Za-z0-9_./?=&:-]*)' docs.html | sort -u || true
+
+      - name: Probe common spec URLs
+        shell: bash
+        run: |
+          set -u
+          BASE="https://siga04.activesoft.com.br"
+          for p in /openapi.json /swagger.json /docs/openapi.json /docs/swagger.json /api/openapi.json /api/swagger.json /api/schema/ /api/schema /swagger/v1/swagger.json /api-docs /docs/api-docs; do
+            echo "=== $p ==="
+            code=$(curl -L -sS -o body.tmp -w '%{http_code}' "$BASE$p" || true)
+            ctype=$(curl -L -sSI "$BASE$p" 2>/dev/null | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print $2; exit}')
+            echo "HTTP $code type=$ctype"
+            head -c 1400 body.tmp || true
+            echo
+          done
